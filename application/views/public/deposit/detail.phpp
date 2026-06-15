@@ -1,0 +1,101 @@
+<div class="row">
+	<?php if ($deposit_method->is_tripay == '1') { 
+		$data = json_decode($target->result, true);
+	?>
+    <div class="alert alert-primary">
+        <div class="alert-body">
+            <i class="fas fa-exclamation-circle me-2"></i>Tagihan akan otomatis dibatalkan setelah melewati <em><b><?= $this->lib->day($data['data']['expired_time']) ?></b></em>.
+        </div>
+    </div>
+	<?php } ?>
+	<div class="col-md-6 mb-2 mt-2">
+		<strong>ID</strong>
+	</div>
+	<div class="col-md-6 mb-2">
+		<input type="text" class="form-control" value="<?= $target->id ?>" disabled="">
+	</div>
+	<div class="col-md-6 mb-2 mt-2">
+		<strong>Metode Pembayaran</strong>
+	</div>
+	<div class="col-md-6 mb-2">
+		<input type="text" class="form-control" value="<?= $deposit_method->name ?>" disabled="">
+	</div>
+	<div class="col-md-6 mb-2 mt-2">
+		<strong>Jumlah Transfer</strong>
+	</div>
+	<div class="col-md-6 mb-2">
+		<input type="text" class="form-control" value="Rp <?= currency($target->amount) ?>" disabled="">
+	</div>
+	<div class="col-md-6 mb-2 mt-2">
+		<strong>Saldo Diterima</strong>
+	</div>
+	<div class="col-md-6 mb-2">
+		<input type="text" class="form-control" value="Rp <?= currency($target->balance) ?>" disabled="">
+	</div>
+	<div class="col-md-6 mb-2 mt-2">
+		<strong>Status</strong>
+	</div>
+	<div class="col-md-6 mb-2 mt-2">
+		<h5 class="fw-bold text-<?= $this->lib->status_order_bg($target->status) ?>"><?= $target->status ?></h5>
+	</div>
+	<div class="col-md-6 mb-2 mt-2">
+		<?php if ($deposit_method->tripay_code == 'QRIS' OR $deposit_method->tripay_code == 'QRISC') { ?>
+		<strong>QR Code</strong>
+		<?php } else { ?>
+		<strong>Kode Pembayaran</strong>
+		<?php } ?>
+	</div>
+	<div class="col-md-6 mb-2 mt-2">
+		<?php if ($deposit_method->tripay_code == 'QRIS' OR $deposit_method->tripay_code == 'QRISC') { ?>
+			<img style="
+    margin: auto;
+    text-align: center;
+    display: block;" src="<?= $target->additional_data ?>" alt="" height="150" />
+		<?php } else { ?>
+		<input type="text" class="form-control" value="<?= $target->additional_data ?>" disabled="">
+		<?php } ?>
+	</div>
+	<?php if ($deposit_method->category == 'pulsa') { ?>
+	<div class="col-md-6 mb-2 mt-2">
+		<strong>Nomor Pengirim (Pulsa)</strong>
+	</div>
+	<div class="col-md-6 mb-2 mt-2">
+		<input type="text" class="form-control" value="<?= $target->phone_number ?>" disabled="">
+	</div>
+	<?php } ?>
+	<div class="col-md-6 mb-2 mt-2">
+		<strong>Informasi</strong>
+	</div>
+	<div class="col-md-6 mb-2 mt-2">
+			<?php
+			$instruction = $this->deposit_method_instruction_model->get_row(['deposit_method_id' => $deposit_method->id]);
+			if ($instruction == true) {
+				$title = json_decode($instruction->title, true);
+				$instruction = json_decode($instruction->instruction, true);
+				for ($i=0; $i < count($title); $i++) { 
+			?>
+			<div class="col-md-12">
+				<div class="payment-group accordion card mb-0" id="<?= str_replace(' ', '', $title[$i]) ?>">
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button type="button" class="accordion-button " data-bs-toggle="collapse" data-bs-target="#<?= str_replace(' ', '', $title[$i]) ?>-1" aria-expanded="false">
+								<?= $title[$i] ?> </button>
+						</h2>
+						<div id="<?= str_replace(' ', '', $title[$i]) ?>-1" class="accordion-collapse collapse" data-bs-parent="#<?= str_replace(' ', '', $title[$i]) ?>" style>
+							<div class="accordion-body pb-0">
+									<?= $instruction[$i] ?>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+					<?php } ?>
+	</div>
+</div>
+	<div class="col-md-6 mb-2 mt-2">
+		<strong>Pembaruan Terakhir</strong>
+	</div>
+	<div class="col-md-6 mb-2 mt-2">
+		<input type="text" class="form-control" value="<?= $this->lib->format_date($target->updated_at) ?>" disabled="">
+	</div>
+			<?php } ?>
