@@ -57,22 +57,26 @@
 												foreach ($status as $skey => $svalue) {
 													$method = $this->deposit_method_model->get_row(['id' => $value['deposit_method_id']]);
 												?>
-													<a class="dropdown-item" href="<?= base_url('admin/' . $this->uri->segment(2) . '/status/' . $value['id'] . '/' . $skey) ?>"><?= $svalue['name'] ?></a></li>
+													<a class="dropdown-item" href="<?= base_url('admin/' . $this->uri->segment(2) . '/status/' . $value['id'] . '/' . $skey) ?>"><?= $svalue['name'] ?></a>
 												<?php } ?>
 											</div>
 										</div>
 									</td>
 									<?php if ($method->is_gateway == '1') {
 										$data = json_decode($value['result'], true);
+										$checkout_url = '';
+										if ($method->type == 'tripay') {
+											$checkout_url = 'https://tripay.co.id/checkout/' . $value['reference'];
+										} elseif (!empty($data) && isset($data['checkout_url'])) {
+											$checkout_url = $data['checkout_url'];
+										}
 									?>
 										<td class="text-center">
-											<a href="<?php
-														if ($method->type == 'tripay') {
-															echo 'https://tripay.co.id/checkout/' . $value['reference'];
-														} else {
-															echo $data['checkout_url'];
-														}
-														?>" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Bayar">Klik Disini</a>
+											<?php if (!empty($checkout_url)) { ?>
+												<a href="<?= $checkout_url ?>" class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Bayar">Klik Disini</a>
+											<?php } else { ?>
+												<span class="text-muted">-</span>
+											<?php } ?>
 										</td>
 									<?php } else { ?>
 										<td class="text-center">-</td>
@@ -157,7 +161,6 @@
 										?>
 									</select>
 								</div>
-
 								<div class="form-group col-lg-4 mb-2">
 									<label class="form-label">Kata Kunci Cari</label>
 									<input type="text" class="form-control" name="value" placeholder="Value" value="<?= $this->input->get('value') ?>">
